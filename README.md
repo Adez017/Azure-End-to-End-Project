@@ -52,14 +52,55 @@ Databricks is a cloud-based platform designed for big data analytics and machine
 
 ***How it is used in this project ?***
 
-We are fetching the data from the from `Data Factory` and we will be going to perform various  transformation which includes data cleaning, data transformation and other. Once we are done with the transformation we are writing the data in our [Silver Layer](https://github.com/Adez017/Azure-End-to-End-Project/blob/main/Scripts/Silver_layer.ipynb) 
+We are fetching the data from the `Data Factory` and we will be going to perform various  transformation which includes data cleaning, data transformation and other. Once we are done with the transformation we are writing the data in our [Silver Layer](https://github.com/Adez017/Azure-End-to-End-Project/blob/main/Scripts/Silver_layer.ipynb) 
 
 ---
 ### Synapse Analytics (Serving)
 Azure Synapse Analytics is a cloud-based analytics service from Microsoft that combines big data integration, data warehousing, and advanced analytics into a single platform. It enables data engineers, data analysts, and data scientists to process, manage, and analyze massive amounts of structured and unstructured data.
+Key Features :
+- Combines data integration, big data, and enterprise data warehousing.
+- Supports both serverless and dedicated compute models for analytics.
+- Built-in data integration pipelines for ETL (Extract, Transform, Load) and ELT (Extract, Load, Transform) operations.
+- Seamless integration with Azure Data Lake Storage, Azure Blob Storage, and third-party data sources.
+- Supports serverless and dedicated compute models, offering flexibility and cost-effectiveness
 
+***how it is used ?***
 
+We used  Synapse Analytics to create a  Serverless SQL Database `dataDB` which is used to query the data available in our data lake in our `Silver` container.
+After that, we created the `views` over the data using the `OPENROWSET()` function. 
 
+****OPENROWSET() :****
+
+It is used to query external data directly from Azure Data Lake Storage or Blob Storage in Azure Synapse Analytics
+example : 
+ ```
+SELECT 
+    * 
+FROM 
+    OPENROWSET
+        (
+            BULK 'https://azdataproject091.blob.core.windows.net/silver-layer/Calendar/',
+            FORMAT = 'PARQUET'
+        ) as QUER1
+
+```
+Sample Output :
+![Output]()
+
+****Process****
+1. Created the `Schema ` gold where the `view` will be stored in the database
+2. Created the `View` using the `OPENROWSET()` Function
+   
+3. Build the `Data source` from where we are fetching the data and in which we are going to store our views through external tables :
+```
+   CREATE EXTERNAL DATA SOURCE source_silver
+WITH
+(
+    LOCATION = 'https://azdataproject091.blob.core.windows.net/silver-layer',
+    CREDENTIAL = cred_aditya
+)
+```
+4. We know that the View are temporary tables that are can't be query in extrnal sources . So , we had build the `External Table's` to save the view's over the gold layer 
 
 
 
